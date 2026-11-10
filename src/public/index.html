@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Constructora Del Valle S.A. | Control Inteligente de Inventarios y Abastecimiento</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="theme-modern">
+  
+  <!-- Banner Flotante de Demo Guiada / Auto-Play -->
+  <div id="demo-controller-bar" class="demo-controller-bar" style="display: none;">
+    <div class="demo-ctrl-inner">
+      <div class="demo-step-badge">
+        <span class="pulse-dot"></span>
+        <span id="demo-step-counter">PASO 1 / 6</span>
+      </div>
+      <div class="demo-ctrl-info">
+        <h4 id="demo-step-title">🎬 Título del Paso</h4>
+        <p id="demo-step-desc">Descripción explicativa para la grabación del video demo.</p>
+      </div>
+      <div class="demo-ctrl-actions">
+        <button id="btn-demo-prev" class="btn btn-sm btn-dark">◀ Anterior</button>
+        <button id="btn-demo-next" class="btn btn-sm btn-primary">Siguiente ▶</button>
+        <button id="btn-demo-autoplay" class="btn btn-sm btn-success">▶ Auto-Play (5 min)</button>
+        <button id="btn-demo-close" class="btn btn-sm btn-outline-danger">✖ Salir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header Principal -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-logo-wrapper">
+          <span class="brand-logo-icon">🏗️</span>
+        </div>
+        <div class="brand-info">
+          <div class="brand-badge">SISTEMA ERP · ABASTECIMIENTO</div>
+          <h1>Constructora Del Valle S.A.</h1>
+          <span class="subtext">Control de Inventarios, Punto de Reorden y Mitigación de Fugas · Quiz #2</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-start-demo-mode" class="btn btn-demo-action" title="Iniciar simulación guiada para grabar el video">
+          <span class="btn-icon">🎬</span>
+          <span>Modo Demo Automático</span>
+        </button>
+        <a href="/INFORME_PRACTICO_QUIZ2.pdf" target="_blank" class="btn btn-pdf-action" title="Descargar Informe Técnico en PDF">
+          <span class="btn-icon">📄</span>
+          <span>Descargar Informe PDF</span>
+        </a>
+        <div class="status-pill">
+          <span class="pulse-indicator online"></span>
+          <span class="status-text">SQLite Online</span>
+        </div>
+        <button id="btn-sync-all" class="btn btn-icon-only" title="Sincronizar base de datos y recalcular alertas">🔄</button>
+      </div>
+    </div>
+
+    <!-- Navegación por Pestañas -->
+    <nav class="nav-tabs">
+      <div class="nav-container">
+        <button class="tab-btn active" data-tab="tab-dashboard">
+          <span class="tab-icon">📊</span>
+          <span>Tablero General</span>
+        </button>
+        <button class="tab-btn" data-tab="tab-inventario">
+          <span class="tab-icon">📦</span>
+          <span>Stock y Punto de Reorden</span>
+          <span id="tab-badge-reorden" class="tab-counter-badge red">2</span>
+        </button>
+        <button class="tab-btn" data-tab="tab-movimientos">
+          <span class="tab-icon">🔄</span>
+          <span>Movimientos de Almacén</span>
+        </button>
+        <button class="tab-btn" data-tab="tab-ordenes">
+          <span class="tab-icon">📑</span>
+          <span>Órdenes y Aprobaciones</span>
+          <span id="tab-badge-pendientes" class="tab-counter-badge yellow">0</span>
+        </button>
+        <button class="tab-btn" data-tab="tab-duplicados">
+          <span class="tab-icon">⚠️</span>
+          <span>Duplicados y Fugas</span>
+          <span class="tab-counter-badge red">!</span>
+        </button>
+        <button class="tab-btn" data-tab="tab-trazabilidad">
+          <span class="tab-icon">🔍</span>
+          <span>Trazabilidad de Lotes</span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Contenedor Principal -->
+  <main class="main-content">
+    
+    <!-- Mensajes de Notificación Toast -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- ======================================================== -->
+    <!-- PESTAÑA 1: TABLERO GENERAL / DASHBOARD -->
+    <!-- ======================================================== -->
+    <section id="tab-dashboard" class="tab-panel active">
+      <!-- KPIs Principales -->
+      <div class="kpi-grid">
+        <div class="kpi-card glass-card">
+          <div class="kpi-icon-box blue">
+            <span>🧱</span>
+          </div>
+          <div class="kpi-content">
+            <span class="kpi-label">Materiales en Catálogo</span>
+            <div class="kpi-val-row">
+              <span id="kpi-total-materiales" class="kpi-value">6</span>
+              <span class="kpi-trend neutral">100% Normalizados</span>
+            </div>
+            <small class="kpi-hint">Taxonomía estándar de 2 niveles</small>
+          </div>
+        </div>
+
+        <div class="kpi-card glass-card border-danger-card">
+          <div class="kpi-icon-box red pulse-glow">
+            <span>🚨</span>
+          </div>
+          <div class="kpi-content">
+            <span class="kpi-label">Bajo Punto de Reorden</span>
+            <div class="kpi-val-row">
+              <span id="kpi-bajo-reorden" class="kpi-value text-red">2</span>
+              <span class="kpi-trend danger">Requieren reposición</span>
+            </div>
+            <small class="kpi-hint">Arena (Crítica) y Block (Urgente)</small>
+          </div>
+        </div>
+
+        <div class="kpi-card glass-card border-warning-card">
+          <div class="kpi-icon-box yellow">
+            <span>⚠️</span>
+          </div>
+          <div class="kpi-content">
+            <span class="kpi-label">Duplicados / Fraccionamientos</span>
+            <div class="kpi-val-row">
+              <span id="kpi-duplicados-detectados" class="kpi-value text-yellow">2</span>
+              <span class="kpi-trend warning">Auditoría de Octubre</span>
+            </div>
+            <small class="kpi-hint">OC-1041/1042 y OC-1050/1053</small>
+          </div>
+        </div>
+
+        <div class="kpi-card glass-card">
+          <div class="kpi-icon-box emerald">
+            <span>💸</span>
+          </div>
+          <div class="kpi-content">
+            <span class="kpi-label">Gasto Total en OCs (Mes)</span>
+            <div class="kpi-val-row">
+              <span id="kpi-gasto-total" class="kpi-value text-emerald">₡7 017 000</span>
+            </div>
+            <small class="kpi-hint">Fuga detectada: ₡223 000 sobreprecio</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Banner de Alertas Críticas de Reorden -->
+      <div id="critical-alerts-banner" class="alert-banner-modern">
+        <div class="alert-banner-header">
+          <div class="alert-title-box">
+            <span class="pulse-beacon red"></span>
+            <h3>Alertas Activas de Reorden Inmediato (Punto de Reorden: PR = d_max × L)</h3>
+          </div>
+          <span class="badge badge-danger">Acción Requerida Hoy</span>
+        </div>
+        <p class="banner-subtext">
+          Los siguientes materiales se encuentran por debajo del Punto de Reorden calculado. La <strong>Arena ($m^3$)</strong> tiene una cobertura de solo 1.4 días a demanda máxima frente a un tiempo de entrega de 2 días: rotura de stock inminente.
+        </p>
+        <div id="urgent-materials-list" class="urgent-cards-grid"></div>
+      </div>
+
+      <!-- Distribución Dividida: Movimientos Recientes y Órdenes Pendientes -->
+      <div class="dashboard-split-grid">
+        <div class="card glass-card">
+          <div class="card-header flex-between">
+            <div class="card-title-group">
+              <h3>📋 Movimientos de Almacén Recientes</h3>
+              <p class="card-subtitle">Auditoría cronológica de existencias físicas</p>
+            </div>
+            <button class="btn btn-xs btn-outline" onclick="app.switchTab('tab-movimientos')">Ver Todos</button>
+          </div>
+          <div class="table-responsive">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Tipo</th>
+                  <th>Material</th>
+                  <th>Cantidad</th>
+                  <th>Ubicación</th>
+                  <th>Documento</th>
+                </tr>
+              </thead>
+              <tbody id="dash-recent-movs"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card glass-card">
+          <div class="card-header flex-between">
+            <div class="card-title-group">
+              <h3>📑 Órdenes Pendientes de Aprobación</h3>
+              <p class="card-subtitle">Flujo jerárquico según umbrales de la Matriz A1</p>
+            </div>
+            <button class="btn btn-xs btn-outline" onclick="app.switchTab('tab-ordenes')">Ir a Órdenes</button>
+          </div>
+          <div class="table-responsive">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>N° OC</th>
+                  <th>Área</th>
+                  <th>Monto Total</th>
+                  <th>Rol Requerido</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="dash-pending-orders"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- PESTAÑA 2: INVENTARIO Y PUNTO DE REORDEN -->
+    <!-- ======================================================== -->
+    <section id="tab-inventario" class="tab-panel">
+      <div class="card glass-card">
+        <div class="card-header flex-between">
+          <div>
+            <h2>📦 Catálogo Maestro de Materiales y Cálculo de Punto de Reorden</h2>
+            <p class="card-subtitle">
+              Fórmula aplicada: <code>SS = (d_max - d) × L</code> | <code>PR = d × L + SS = d_max × L</code>. El stock actual se calcula dinámicamente de los movimientos.
+            </p>
+          </div>
+          <div class="header-tools">
+            <button class="btn btn-primary" onclick="app.openNewMaterialModal()">+ Nuevo Material</button>
+          </div>
+        </div>
+
+        <!-- Filtros Rápidos -->
+        <div class="filter-bar">
+          <div class="filter-chips">
+            <button class="chip-btn active" data-filter="TODOS">Todos (6)</button>
+            <button class="chip-btn" data-filter="REORDEN">🚨 En Reorden (2)</button>
+            <button class="chip-btn" data-filter="CONSTRUCCION">Materiales de Construcción</button>
+            <button class="chip-btn" data-filter="EPP">Seguridad / EPP</button>
+            <button class="chip-btn" data-filter="HIDRAULICA">Instalaciones Hidráulicas</button>
+          </div>
+          <div class="search-box">
+            <input type="text" id="inventory-search-input" class="form-control-search" placeholder="🔍 Buscar por código o nombre...">
+          </div>
+        </div>
+
+        <!-- Tabla con Barras Visuales de Stock -->
+        <div class="table-responsive mt-3">
+          <table class="modern-table stock-gauge-table">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Material Normalizado</th>
+                <th>Subcategoría</th>
+                <th>d (Prom)</th>
+                <th>d_max</th>
+                <th>L (Lead)</th>
+                <th>SS</th>
+                <th>PR</th>
+                <th>Stock Físico</th>
+                <th>Medidor Visual de Existencias (0 ➔ SS ➔ PR)</th>
+                <th>Cobertura</th>
+                <th>Estado</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-table-body"></tbody>
+          </table>
+        </div>
+
+        <!-- Leyenda de colores del medidor -->
+        <div class="gauge-legend">
+          <div class="legend-item"><span class="legend-color-dot red"></span> Zona Roja: Quiebre Crítico (&le; Stock Seguridad SS)</div>
+          <div class="legend-item"><span class="legend-color-dot yellow"></span> Zona Amarilla: Reorden Requerido (SS &lt; Stock &le; PR)</div>
+          <div class="legend-item"><span class="legend-color-dot green"></span> Zona Verde: Stock Saludable / Óptimo (&gt; PR)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- PESTAÑA 3: MOVIMIENTOS DE ALMACÉN -->
+    <!-- ======================================================== -->
+    <section id="tab-movimientos" class="tab-panel">
+      <div class="split-layout">
+        <!-- Formulario -->
+        <div class="card glass-card form-card">
+          <div class="form-card-header">
+            <h3>📝 Registrar Movimiento de Existencias</h3>
+            <p class="card-subtitle">Entradas, salidas a frentes de obra, traslados o ajustes auditados.</p>
+          </div>
+
+          <form id="form-movimiento" class="modern-form">
+            <div class="form-group">
+              <label for="mov-tipo">Tipo de Transacción *</label>
+              <select id="mov-tipo" class="form-control" required>
+                <option value="ENTRADA">📥 ENTRADA (Recepción de compra / almacén)</option>
+                <option value="SALIDA" selected>📤 SALIDA (Consumo directo en obra / taller)</option>
+                <option value="TRASLADO">🚚 TRASLADO (Entre bodegas / frentes de obra)</option>
+                <option value="AJUSTE">⚖️ AJUSTE (Conteo físico / merma auditada)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="mov-material">Material a Afectar *</label>
+              <select id="mov-material" class="form-control" required></select>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="mov-bodega-origen">Ubicación Origen *</label>
+                <select id="mov-bodega-origen" class="form-control" required></select>
+              </div>
+              <div class="form-group col" id="group-bodega-destino" style="display: none;">
+                <label for="mov-bodega-destino">Ubicación Destino *</label>
+                <select id="mov-bodega-destino" class="form-control"></select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="mov-cantidad">Cantidad Física *</label>
+                <input type="number" id="mov-cantidad" class="form-control" step="0.01" min="0.01" placeholder="Ej: 100" required>
+              </div>
+              <div class="form-group col">
+                <label for="mov-usuario">Usuario Responsable *</label>
+                <input type="text" id="mov-usuario" class="form-control" value="encargado_obra" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col">
+                <label for="mov-doc-tipo">Tipo Documento Legal *</label>
+                <select id="mov-doc-tipo" class="form-control" required>
+                  <option value="VALE_SALIDA" selected>Vale de Salida de Material</option>
+                  <option value="ORDEN_COMPRA">Orden de Compra (OC)</option>
+                  <option value="GUIA_TRASLADO">Guía de Conduce / Traslado</option>
+                  <option value="AJUSTE_INVENTARIO">Acta de Conteo Físico</option>
+                </select>
+              </div>
+              <div class="form-group col">
+                <label for="mov-doc-num">Número de Folio / Referencia</label>
+                <input type="text" id="mov-doc-num" class="form-control" placeholder="Ej: VALE-1088 o OC-1065">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="mov-motivo">Justificación de Uso / Destino en Obra</label>
+              <input type="text" id="mov-motivo" class="form-control" placeholder="Ej: Armado de vigas corona y columnas norte">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+              <span>💾 Registrar Movimiento y Recalcular Stock</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Historial -->
+        <div class="card glass-card history-card">
+          <div class="card-header flex-between">
+            <div>
+              <h3>📜 Historial Cronológico de Movimientos</h3>
+              <p class="card-subtitle">Trazabilidad inmutable de entradas, salidas y traslados</p>
+            </div>
+            <span class="badge badge-info">Auditoría Continua</span>
+          </div>
+          <div class="table-responsive">
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Fecha</th>
+                  <th>Tipo</th>
+                  <th>Material</th>
+                  <th>Cantidad</th>
+                  <th>Origen</th>
+                  <th>Destino</th>
+                  <th>Documento</th>
+                  <th>Usuario</th>
+                </tr>
+              </thead>
+              <tbody id="all-movs-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- PESTAÑA 4: ÓRDENES Y MATRIZ DE APROBACIÓN -->
+    <!-- ======================================================== -->
+    <section id="tab-ordenes" class="tab-panel">
+      <div class="card glass-card">
+        <div class="card-header flex-between">
+          <div>
+            <h2>📑 Órdenes de Compra y Matriz Jerárquica de Aprobación</h2>
+            <p class="card-subtitle">
+              Las órdenes quedan retenidas en <code>PENDIENTE_APROBACION</code> hasta ser autorizadas por el rol que exige el monto.
+            </p>
+          </div>
+          <button class="btn btn-primary" onclick="app.openNewOrderModal()">+ Crear Nueva Orden de Compra</button>
+        </div>
+
+        <!-- Tarjetas Visuales de la Matriz de Aprobación (Ejercicio A1) -->
+        <div class="matrix-cards-grid">
+          <div class="matrix-level-card">
+            <div class="m-level-tag">Nivel 1</div>
+            <h4>Hasta ₡250 000</h4>
+            <div class="m-role">Jefatura del Área Solicitante</div>
+            <div class="m-req">1 Cotización · Catálogo marco</div>
+          </div>
+          <div class="matrix-level-card">
+            <div class="m-level-tag">Nivel 2</div>
+            <h4>₡250 001 a ₡2 000 000</h4>
+            <div class="m-role">Jefatura de Compras</div>
+            <div class="m-req">2 Cotizaciones requeridas</div>
+          </div>
+          <div class="matrix-level-card highlight-card">
+            <div class="m-level-tag">Nivel 3</div>
+            <h4>₡2 000 001 a ₡10 000 000</h4>
+            <div class="m-role">Gerencia Financiera</div>
+            <div class="m-req">3 Cotizaciones obligatorias</div>
+          </div>
+          <div class="matrix-level-card">
+            <div class="m-level-tag">Nivel 4</div>
+            <h4>Más de ₡10 000 000</h4>
+            <div class="m-role">Gerencia General + Comité</div>
+            <div class="m-req">3 Cotizaciones + Acta formal</div>
+          </div>
+        </div>
+
+        <!-- Tabla de Órdenes -->
+        <div class="table-responsive mt-3">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>N° OC</th>
+                <th>Fecha</th>
+                <th>Área Solicitante</th>
+                <th>Proveedor</th>
+                <th>Monto Total (₡)</th>
+                <th>Aprobador Exigido</th>
+                <th>Estado</th>
+                <th>Aprobado Por</th>
+                <th>Auditoría / Fugas</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="orders-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- PESTAÑA 5: DUPLICADOS Y FUGAS DE VALOR -->
+    <!-- ======================================================== -->
+    <section id="tab-duplicados" class="tab-panel">
+      <!-- Regla de Detección -->
+      <div class="card glass-card banner-gradient-card">
+        <div class="banner-gradient-content">
+          <span class="banner-pill">ALGORITMO ANTI-SPLITTING</span>
+          <h3>🔍 Motor de Detección Inteligente de Compras Duplicadas y Fraccionamientos</h3>
+          <p>
+            <strong>Criterio de Auditoría:</strong> Mismo Proveedor + Mismo Material + Intervalo de Fechas cercano (&le; 7 días) + Cantidad similar (&plusmn;10% de variación). Además detecta cuando compras divididas suman un total que elude la firma de la Gerencia Financiera.
+          </p>
+        </div>
+      </div>
+
+      <!-- Casos Detectados -->
+      <div class="card glass-card mt-3">
+        <div class="card-header flex-between">
+          <div>
+            <h3>⚠️ Casos de Duplicidad y Fraccionamiento Detectados (Mes de Octubre)</h3>
+            <p class="card-subtitle">Análisis comparativo de transacciones sospechosas</p>
+          </div>
+          <button class="btn btn-sm btn-secondary" onclick="app.refreshDuplicates()">🔄 Re-escanear Base de Datos</button>
+        </div>
+        <div class="table-responsive">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>Orden A</th>
+                <th>Orden B</th>
+                <th>Artículo Involucrado</th>
+                <th>Proveedor</th>
+                <th>Diferencia Días</th>
+                <th>Variación Cantidad</th>
+                <th>Dictamen de Auditoría y Fuga de Control</th>
+              </tr>
+            </thead>
+            <tbody id="duplicates-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Cuantificación de Fugas de Valor (Caso A3) -->
+      <div class="card glass-card mt-3">
+        <div class="card-header flex-between">
+          <div>
+            <h3>💸 Auditoría de Gasto Fuera de Contrato y Sobreprecios (Caso A3)</h3>
+            <p class="card-subtitle">Comparación de cada línea frente a la tarifa del contrato vigente con Proveedor A (Cemento ₡6 300, Varilla ₡2 050)</p>
+          </div>
+          <span class="badge badge-danger">Fuga Cuantificada</span>
+        </div>
+        <div class="table-responsive">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th>N° OC</th>
+                <th>Fecha</th>
+                <th>Área</th>
+                <th>Proveedor</th>
+                <th>Artículo</th>
+                <th>Cant.</th>
+                <th>Precio Pagado</th>
+                <th>Precio Contrato (Prov A)</th>
+                <th>Sobreprecio Unit.</th>
+                <th>Fuga Total</th>
+                <th>Diagnóstico</th>
+              </tr>
+            </thead>
+            <tbody id="leakage-table-body"></tbody>
+          </table>
+        </div>
+
+        <div class="leakage-kpi-summary">
+          <div class="leak-kpi-box">
+            <span class="leak-label">Fuga Directa por Sobreprecio (Octubre):</span>
+            <span class="leak-val text-red">₡223 000</span>
+          </div>
+          <div class="leak-kpi-box">
+            <span class="leak-label">Gasto Fuera de Contrato (Maverick Spend):</span>
+            <span class="leak-val text-yellow">₡2 547 000 (36.3% del gasto mensual)</span>
+          </div>
+          <div class="leak-kpi-box">
+            <span class="leak-label">Proyección Anual por Sobreprecio:</span>
+            <span class="leak-val text-red">₡2 676 000 / año</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- PESTAÑA 6: TRAZABILIDAD DE LOTES Y ORDENES DE ORIGEN -->
+    <!-- ======================================================== -->
+    <section id="tab-trazabilidad" class="tab-panel">
+      <div class="card glass-card">
+        <div class="card-header flex-between">
+          <div>
+            <h2>🔍 Auditoría de Trazabilidad Integral de Existencias</h2>
+            <p class="card-subtitle">Audite de qué Orden de Compra ingresó cada existencia física y dónde se encuentra hoy.</p>
+          </div>
+          <div class="trace-selector-box">
+            <label for="trace-select-material">Seleccionar Material a Auditar: </label>
+            <select id="trace-select-material" class="form-control select-material-trace"></select>
+          </div>
+        </div>
+
+        <div class="trace-content-wrapper mt-3">
+          <!-- Resumen del Material -->
+          <div id="trace-material-card" class="trace-summary-strip"></div>
+
+          <!-- Distribución en Bodegas -->
+          <div class="subcard mt-3">
+            <h4>🏢 Existencias Físicas Distribuidas por Bodega y Obra</h4>
+            <div id="trace-bodegas-grid" class="bodegas-card-grid"></div>
+          </div>
+
+          <!-- Entradas por OC -->
+          <div class="subcard mt-3">
+            <h4>📥 Lotes Ingresados y Órdenes de Compra de Origen (Three-Way Match)</h4>
+            <div class="table-responsive">
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th>Fecha Ingreso</th>
+                    <th>N° Orden de Compra</th>
+                    <th>Proveedor Surtidor</th>
+                    <th>Cantidad Ingresada</th>
+                    <th>Precio Pagado</th>
+                    <th>Precio Contrato</th>
+                    <th>Sobreprecio</th>
+                    <th>Valor Total de Ingreso</th>
+                  </tr>
+                </thead>
+                <tbody id="trace-pos-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Cronología Completa -->
+          <div class="subcard mt-3">
+            <h4>📜 Historial Completo de Movimientos del Material</h4>
+            <div class="table-responsive">
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Cantidad</th>
+                    <th>Origen</th>
+                    <th>Destino</th>
+                    <th>Documento Origen</th>
+                    <th>Usuario</th>
+                    <th>Motivo</th>
+                  </tr>
+                </thead>
+                <tbody id="trace-movs-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODALES -->
+  
+  <!-- Modal: Aprobación -->
+  <div id="modal-approval" class="modal-backdrop">
+    <div class="modal-dialog glass-modal">
+      <div class="modal-header">
+        <h3 id="modal-approval-title">Aprobar Orden de Compra</h3>
+        <button class="modal-close" onclick="app.closeModal('modal-approval')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="modal-approval-info" class="modal-intro-text"></p>
+        <div class="form-group">
+          <label for="modal-approval-role">Rol Jerárquico del Aprobador *</label>
+          <select id="modal-approval-role" class="form-control">
+            <option value="Jefatura del área solicitante">Jefatura del área solicitante (Nivel 1 - Hasta ₡250k)</option>
+            <option value="Jefatura de Compras" selected>Jefatura de Compras (Nivel 2 - Hasta ₡2M)</option>
+            <option value="Gerencia Financiera">Gerencia Financiera (Nivel 3 - Hasta ₡10M)</option>
+            <option value="Gerencia General">Gerencia General (Nivel 4 - > ₡10M)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="modal-approval-user">Nombre y Firma del Funcionario *</label>
+          <input type="text" id="modal-approval-user" class="form-control" value="Ing. Alexander Aguilar" placeholder="Nombre completo">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeModal('modal-approval')">Cancelar</button>
+        <button id="btn-confirm-approval" class="btn btn-success">✅ Validar y Aprobar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Nueva Orden -->
+  <div id="modal-new-order" class="modal-backdrop">
+    <div class="modal-dialog modal-lg glass-modal">
+      <div class="modal-header">
+        <h3>+ Crear Nueva Orden de Compra</h3>
+        <button class="modal-close" onclick="app.closeModal('modal-new-order')">&times;</button>
+      </div>
+      <form id="form-new-order">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group col">
+              <label for="new-oc-num">Número de Folio OC *</label>
+              <input type="text" id="new-oc-num" class="form-control" placeholder="Ej: OC-1075" required>
+            </div>
+            <div class="form-group col">
+              <label for="new-oc-date">Fecha de Emisión *</label>
+              <input type="date" id="new-oc-date" class="form-control" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col">
+              <label for="new-oc-area">Área Solicitante *</label>
+              <select id="new-oc-area" class="form-control" required>
+                <option value="Obras">Obras</option>
+                <option value="Mantenimiento">Mantenimiento</option>
+                <option value="Bodega Central">Bodega Central</option>
+              </select>
+            </div>
+            <div class="form-group col">
+              <label for="new-oc-supplier">Proveedor *</label>
+              <select id="new-oc-supplier" class="form-control" required></select>
+            </div>
+          </div>
+
+          <h4 class="mt-3">Artículo a Comprar</h4>
+          <div class="form-row">
+            <div class="form-group col">
+              <label for="new-oc-material">Material *</label>
+              <select id="new-oc-material" class="form-control" required></select>
+            </div>
+            <div class="form-group col">
+              <label for="new-oc-cant">Cantidad *</label>
+              <input type="number" id="new-oc-cant" class="form-control" step="0.01" min="1" required>
+            </div>
+            <div class="form-group col">
+              <label for="new-oc-price">Precio Unitario (₡) *</label>
+              <input type="number" id="new-oc-price" class="form-control" step="0.01" min="1" required>
+            </div>
+          </div>
+
+          <div id="new-oc-preview-box" class="callout callout-info mt-3" style="display:none;">
+            <div>Total Calculado: <strong id="preview-oc-total">₡0</strong></div>
+            <div>Aprobador Requerido por Matriz: <span id="preview-oc-role" class="badge badge-info">-</span></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="app.closeModal('modal-new-order')">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Emitir Orden de Compra</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <span>Constructora Del Valle S.A. &copy; 2026 · Solución Integral de Inventarios y Abastecimiento</span>
+      <span>Node.js v24 · SQLite · Arquitectura en Capas · Test Runner Nativo</span>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
