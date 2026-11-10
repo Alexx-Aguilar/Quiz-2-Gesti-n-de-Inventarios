@@ -1,0 +1,50 @@
+erDiagram
+    PRODUCTS ||--o{ PRODUCT_EQUIVALENCES : normaliza
+    SUPPLIERS ||--o{ PRODUCT_EQUIVALENCES : publica
+    PRODUCT_EQUIVALENCES ||--o{ PRICE_CAPTURES : conserva
+    PRODUCT_EQUIVALENCES ||--o{ PRICE_ALERTS : genera
+
+    PRODUCTS {
+      int id PK
+      string code UK
+      string name
+      string category
+      string unit
+    }
+    SUPPLIERS {
+      int id PK
+      string name UK
+      string source_file
+    }
+    PRODUCT_EQUIVALENCES {
+      int id PK
+      int product_id FK
+      int supplier_id FK
+      string supplier_sku
+      string supplier_name
+      string source_url
+    }
+    PRICE_CAPTURES {
+      int id PK
+      int equivalence_id FK
+      decimal price
+      string currency
+      datetime captured_at
+      string source_payload
+    }
+    PRICE_ALERTS {
+      int id PK
+      int equivalence_id FK
+      decimal previous_price
+      decimal current_price
+      decimal change_percent
+      decimal threshold_percent
+      datetime created_at
+    }
+    SOURCE_ERRORS {
+      int id PK
+      string supplier_name
+      string source_file
+      string message
+      datetime created_at
+    }

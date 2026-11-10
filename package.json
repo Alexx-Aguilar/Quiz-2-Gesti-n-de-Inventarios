@@ -1,23 +1,13 @@
 {
   "name": "constructora-del-valle-inventario",
   "version": "1.0.0",
-  "description": "Sistema de Control de Inventarios, Alertas de Reorden y Detección de Fugas de Valor para Constructora Del Valle S.A.",
+  "description": "Comparador historico de precios de materiales",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js",
-    "seed": "node src/db/seed.js",
-    "test": "node --test tests/*.test.js"
+    "update": "node src/update-prices.js"
   },
-  "keywords": [
-    "inventario",
-    "compras",
-    "reorden",
-    "duplicados",
-    "construccion",
-    "nodejs"
-  ],
-  "author": "Equipo Constructora Del Valle",
+  "engines": { "node": ">=24" },
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.6",
