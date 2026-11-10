@@ -5,4 +5,6 @@ fs.mkdirSync(path.dirname(path.resolve(file)),{recursive:true});
 const db=new DatabaseSync(file);
 db.exec('PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL;');
 db.exec(fs.readFileSync(path.join(__dirname,'schema.sql'),'utf8'));
+const errorColumns=db.prepare('PRAGMA table_info(source_errors)').all().map((column)=>column.name);
+if(!errorColumns.includes('resolved_at'))db.exec('ALTER TABLE source_errors ADD COLUMN resolved_at TEXT');
 module.exports=db;
