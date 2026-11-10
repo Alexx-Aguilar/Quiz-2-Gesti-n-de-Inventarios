@@ -1,10 +1,37 @@
-const fs=require('node:fs'),path=require('node:path');
-const {DatabaseSync}=require('node:sqlite');
-const file=process.env.DATABASE_FILE||'./data/catalog.db';
-fs.mkdirSync(path.dirname(path.resolve(file)),{recursive:true});
-const db=new DatabaseSync(file);
-db.exec('PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL;');
-db.exec(fs.readFileSync(path.join(__dirname,'schema.sql'),'utf8'));
-const errorColumns=db.prepare('PRAGMA table_info(source_errors)').all().map((column)=>column.name);
-if(!errorColumns.includes('resolved_at'))db.exec('ALTER TABLE source_errors ADD COLUMN resolved_at TEXT');
-module.exports=db;
+const mysql = require('mysql2/promise');
+
+const pool = mysql.createPool({
+  host: process.env.DB_HOST || 'localhost',
+  port: Number(process.env.DB_PORT || 3306),
+  user: process.env.DB_USER || 'comparador_app',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'comparador_precios',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+  decimalNumbers: true,
+  timezone: 'Z',
+  charset: 'utf8mb4'
+});
+
+async function query(sql, params = []) {
+  const [rows] = await pool.execute(sql, params);
+  return rows;
+}
+
+async function transaction(work) {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    const result = await work(connection);
+    await connection.commit();
+    return result;
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
+
+module.exports = { pool, query, transaction };

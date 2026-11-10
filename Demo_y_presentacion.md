@@ -21,6 +21,7 @@
 ## Preparación del equipo
 
 - Instalar Node.js 20+, ejecutar `npm install` y `npm start`.
+- Antes de la demo, ejecutar `database/mysql_setup.sql` desde MySQL Workbench y configurar la cuenta local en `.env`.
 - Probar la alerta y restaurar el JSON de origen después de la demostración.
 - Completar integrantes en `Informe.md`.
 - Grabar demo y preparar diapositivas siguiendo el guion.

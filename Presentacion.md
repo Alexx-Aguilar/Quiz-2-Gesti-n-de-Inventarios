@@ -27,7 +27,7 @@ Comparador de catálogo con código interno, equivalencias por proveedor, compar
 
 ## 5. Modelo y flujo · 1 min 20 s
 
-Productos → equivalencias proveedor → capturas históricas → alertas. Dos archivos fuente JSON simulados; el proceso lee cada fuente, valida estructura, guarda historial y registra errores.
+Node.js y Express conectan a MySQL con `mysql2`; el esquema se prepara en Workbench. Productos → equivalencias proveedor → capturas históricas → alertas. Dos archivos fuente JSON simulados; el proceso lee cada fuente, valida estructura, guarda historial y registra errores.
 
 ## 6. Demo · 3 min
 

@@ -1,35 +1,64 @@
 # Comparador de precios de proveedores
 
-Prototipo para comparar materiales de construcción entre proveedores, conservar cada captura de precio y alertar sobre variaciones.
+Dashboard web para comparar materiales entre dos catálogos JSON de demostración, guardar cada captura en MySQL y alertar sobre cambios de precio. El backend es Node.js + Express y la base se administra con MySQL Workbench.
 
-El dashboard permite buscar y filtrar artículos, ordenar ofertas por precio, revisar diferencias unitarias, consultar el historial de capturas y ver los cambios de precio y errores pendientes de cada fuente. Está diseñado para escritorio y móvil.
+## Requisitos
 
-## Requisitos y ejecución
+- Node.js 20 o superior y npm.
+- MySQL Server 8.0 o superior en ejecución.
+- MySQL Workbench conectado a ese servidor.
 
-Requiere Node.js 24 o superior. La base SQLite usa el módulo integrado `node:sqlite`, por lo que no necesita `better-sqlite3`, compilación C++ ni Visual Studio. Copie `.env.example` a `.env`, ejecute `npm install` y `npm start`. Abra `http://localhost:3000` y pulse **Actualizar precios** para cargar las ofertas iniciales.
+Workbench es el cliente gráfico y por sí solo no crea un servidor. Si no aparece una conexión local, instale **MySQL Server** y Workbench con MySQL Installer; durante la configuración conserve el puerto 3306 y deje activo el servicio MySQL.
 
-## Fuentes y datos
+## Configuración de MySQL Workbench
 
-`data/sources/novex.json` y `construplaza.json` contienen catálogos simulados permitidos por la consigna. No se consultan tiendas reales ni se requieren claves. Los precios no son cotizaciones. Antes de integrar fuentes reales, revise sus términos y `robots.txt`, limite las consultas y no evada restricciones.
+1. Abra Workbench y conéctese a su servidor local, normalmente `Local instance MySQL80`.
+2. Abra `database/mysql_setup.sql` desde **File → Open SQL Script**.
+3. Ejecute el script con el botón del rayo. Crea la base `comparador_precios`, las tablas y los cuatro productos normalizados.
+4. Cree el usuario de la aplicación. Abra `database/create_app_user.example.sql`, cambie `PONGA_AQUI_UNA_CLAVE_SEGURA` por una contraseña fuerte y ejecute el script como administrador. El usuario recibe solo permisos de lectura, inserción y actualización.
+5. Confirme que el esquema `comparador_precios` aparece en el panel **Schemas**.
+
+## Instalar y arrancar la aplicación
+
+Desde la carpeta del proyecto, en PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Edite `.env` y asegúrese de que `DB_USER` y `DB_PASSWORD` coincidan con el usuario creado en Workbench. Luego ejecute:
+
+```powershell
+npm install
+npm start
+```
+
+`npm install` descarga `mysql2`, un controlador sin complementos nativos, y genera el `package-lock.json` de este proyecto. No requiere Visual Studio ni herramientas de compilación C++.
+
+Abra `http://localhost:3000` y pulse **Actualizar precios**. El comparador cargará las equivalencias desde los JSON, guardará la primera captura en MySQL y mostrará las ofertas.
+
+## Datos de conexión
+
+`.env.example` incluye `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD` y `DB_NAME`. Los valores predeterminados esperan MySQL local en el puerto 3306. No escriba claves reales en archivos versionados; `.env` está excluido por `.gitignore`.
+
+## Actualización recurrente
+
+El botón de la página ejecuta una captura inmediata. Para programarlas, cree una tarea de Windows que ejecute `npm run update` desde la carpeta del proyecto con la frecuencia elegida. La tabla `price_captures` conserva todas las lecturas; el umbral configurable está en `ALERT_THRESHOLD_PERCENT` (5 % por defecto). Los errores de una fuente se registran, la otra se sigue procesando y los errores anteriores quedan resueltos cuando la fuente vuelve a funcionar.
 
 ## API
 
 - `GET /api/products`: catálogo normalizado.
-- `GET /api/products/:code/compare`: precio vigente por proveedor, menor a mayor.
-- `GET /api/products/:code/history`: historial del artículo.
-- `GET /api/alerts`: alertas por variaciones de precio.
-- `GET /api/errors`: errores sin resolver de fuentes.
-- `GET /api/config`: configuración pública del comparador, incluido el umbral.
-- `POST /api/update`: captura ambas fuentes ahora.
+- `GET /api/products/:code/compare`: precio actual por proveedor, de menor a mayor.
+- `GET /api/products/:code/history`: capturas históricas.
+- `GET /api/alerts`: variaciones de precio.
+- `GET /api/errors`: errores de fuentes sin resolver.
+- `GET /api/config`: umbral de alerta.
+- `POST /api/update`: actualizar ambas fuentes ahora.
 
-Cada actualización agrega registros al histórico. El umbral de alerta se configura con `ALERT_THRESHOLD_PERCENT` (5 % por defecto) y también se muestra en el dashboard. Las fuentes se procesan de manera independiente; un fallo se registra en la base y no detiene la otra fuente. Cuando una fuente se recupera, sus errores abiertos quedan marcados como resueltos y se conservan en la base para auditoría.
+## Fuentes de precios
 
-Para una actualización recurrente, configure el Programador de tareas de Windows para ejecutar `npm run update` con la frecuencia deseada. La base `data/catalog.db` se crea al iniciar y está excluida de Git.
+`data/sources/novex.json` y `construplaza.json` son datos ficticios. No representan cotizaciones reales ni consultan sitios externos. Antes de integrar una tienda real, revise sus términos y `robots.txt`, limite la frecuencia y no evada bloqueos.
 
-## Estructura de datos
+## Modelo de datos
 
-`products` guarda el catálogo interno; `suppliers` las fuentes; `product_equivalences` relaciona códigos de proveedor con códigos internos; `price_captures` conserva el histórico; `price_alerts` registra variaciones y `source_errors` documenta fallos.
-
-## Demostración
-
-Consulte `Demo_y_presentacion.md` para mostrar el dashboard y provocar una alerta. Puede cambiar temporalmente un precio en el JSON de origen, actualizar y luego restaurarlo.
+`products` contiene artículos internos; `suppliers`, proveedores; `product_equivalences`, códigos externos relacionados con el código interno; `price_captures`, histórico; `price_alerts`, alertas; `source_errors`, fallos y resolución por fuente.

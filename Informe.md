@@ -93,7 +93,7 @@ Para trazabilidad, cada movimiento registra ID, tipo (entrada/salida/traslado/aj
 
 ## Parte B · Solución elegida
 
-El prototipo ofrece cuatro artículos normalizados y ocho equivalencias simuladas. Conserva cada lectura, compara el precio más reciente por artículo y fuente y crea alertas cuando el cambio absoluto es igual o mayor al umbral configurable del 5 %. Cada JSON se procesa por separado; los errores se guardan y no detienen las otras fuentes. Incluye dashboard, API e instrucciones en `README.md`.
+El prototipo ofrece cuatro artículos normalizados y ocho equivalencias simuladas. El backend Node.js conecta con MySQL mediante `mysql2`; la creación de tablas y datos maestros se prepara en `database/mysql_setup.sql` para ejecutar desde MySQL Workbench. Conserva cada lectura, compara el precio más reciente por artículo y fuente y crea alertas cuando el cambio absoluto es igual o mayor al umbral configurable del 5 %. Cada JSON se procesa por separado; los errores se guardan y no detienen las otras fuentes. Incluye dashboard, API e instrucciones en `README.md`.
 
 **Modelo relacional:** `products` 1:N `product_equivalences`; `suppliers` 1:N `product_equivalences`; `product_equivalences` 1:N `price_captures` y 1:N `price_alerts`. La tabla `source_errors` registra fallas de lectura.
 
