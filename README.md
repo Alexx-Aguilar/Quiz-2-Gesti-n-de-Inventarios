@@ -18,6 +18,8 @@ Workbench es el cliente gráfico y por sí solo no crea un servidor. Si no apare
 4. Cree el usuario de la aplicación. Abra `database/create_app_user.example.sql`, cambie `PONGA_AQUI_UNA_CLAVE_SEGURA` por una contraseña fuerte y ejecute el script como administrador. El usuario recibe solo permisos de lectura, inserción y actualización.
 5. Confirme que el esquema `comparador_precios` aparece en el panel **Schemas**.
 
+Si ya creó ese usuario con una clave temporal como `1234`, cámbiela con `database/rotate_app_user_password.example.sql` y actualice `DB_PASSWORD` en `.env` con el mismo valor. No guarde la contraseña real en GitHub ni tome capturas donde se vea.
+
 ## Instalar y arrancar la aplicación
 
 Desde la carpeta del proyecto, en PowerShell:
@@ -62,3 +64,7 @@ El botón de la página ejecuta una captura inmediata. Para programarlas, cree u
 ## Modelo de datos
 
 `products` contiene artículos internos; `suppliers`, proveedores; `product_equivalences`, códigos externos relacionados con el código interno; `price_captures`, histórico; `price_alerts`, alertas; `source_errors`, fallos y resolución por fuente.
+
+## Entrega y evidencias
+
+Consulte [`ENTREGA_Y_EVIDENCIAS.md`](ENTREGA_Y_EVIDENCIAS.md) para ver las capturas recomendadas, las consultas de verificación de Workbench y los entregables que aún debe preparar el equipo. Las consultas están en `database/verification_queries.sql`.

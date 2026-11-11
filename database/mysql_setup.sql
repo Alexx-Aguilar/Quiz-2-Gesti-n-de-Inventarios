@@ -75,16 +75,16 @@ CREATE TABLE IF NOT EXISTS source_errors (
   KEY ix_source_error_open (resolved_at, created_at)
 ) ENGINE=InnoDB;
 
-INSERT INTO products (code, name, category, unit) VALUES
+INSERT IGNORE INTO products (code, name, category, unit) VALUES
   ('MAT-CEM-GRIS-50KG', 'Cemento gris 50 kg', 'Materiales de construcción', 'saco'),
   ('MAT-VAR-3-G40-6M', 'Varilla #3 grado 40, 6 m', 'Materiales de construcción', 'unidad'),
   ('MAT-BLK-12-20-40', 'Block 12 x 20 x 40 cm', 'Materiales de construcción', 'unidad'),
   ('MAT-ARENA-M3', 'Arena', 'Materiales de construcción', 'm3')
-ON DUPLICATE KEY UPDATE name = VALUES(name), category = VALUES(category), unit = VALUES(unit);
+;
 
-INSERT INTO suppliers (name, source_file) VALUES
+INSERT IGNORE INTO suppliers (name, source_file) VALUES
   ('Novex (simulado)', 'novex.json'),
   ('Construplaza (simulado)', 'construplaza.json')
-ON DUPLICATE KEY UPDATE source_file = VALUES(source_file);
+;
 
 -- Los equivalentes y precios se cargan desde los dos JSON al pulsar "Actualizar precios".

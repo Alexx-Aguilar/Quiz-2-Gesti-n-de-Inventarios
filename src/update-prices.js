@@ -26,7 +26,7 @@ async function updateSource(filename) {
     }
 
     await db.query(
-      'INSERT INTO suppliers (name, source_file) VALUES (?, ?) ON DUPLICATE KEY UPDATE source_file = VALUES(source_file)',
+      'INSERT IGNORE INTO suppliers (name, source_file) VALUES (?, ?)',
       [supplierName, filename]
     );
     const [supplier] = await db.query('SELECT id FROM suppliers WHERE name = ?', [supplierName]);
@@ -43,10 +43,14 @@ async function updateSource(filename) {
         if (!product) throw new Error(`Código interno desconocido: ${item.productCode}`);
 
         await connection.execute(
-          `INSERT INTO product_equivalences (product_id, supplier_id, supplier_sku, supplier_name, source_url)
-           VALUES (?, ?, ?, ?, ?)
-           ON DUPLICATE KEY UPDATE product_id = VALUES(product_id), supplier_name = VALUES(supplier_name), source_url = VALUES(source_url)`,
+          `INSERT IGNORE INTO product_equivalences (product_id, supplier_id, supplier_sku, supplier_name, source_url)
+           VALUES (?, ?, ?, ?, ?)`,
           [product.id, supplier.id, item.supplierSku, item.name, item.url || null]
+        );
+        await connection.execute(
+          `UPDATE product_equivalences SET product_id = ?, supplier_name = ?, source_url = ?
+           WHERE supplier_id = ? AND supplier_sku = ?`,
+          [product.id, item.name, item.url || null, supplier.id, item.supplierSku]
         );
         const [equivalenceRows] = await connection.execute(
           'SELECT id FROM product_equivalences WHERE supplier_id = ? AND supplier_sku = ?',
@@ -99,8 +103,7 @@ async function main() {
   try {
     for (const product of products) {
       await db.query(
-        `INSERT INTO products (code, name, category, unit) VALUES (?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE name = VALUES(name), category = VALUES(category), unit = VALUES(unit)`,
+        'INSERT IGNORE INTO products (code, name, category, unit) VALUES (?, ?, ?, ?)',
         product
       );
     }
