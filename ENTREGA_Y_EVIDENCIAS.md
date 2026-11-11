@@ -23,10 +23,10 @@ Usa `database/verification_queries.sql` para obtener resultados legibles. Ejecut
 
 ## Pendiente para entregar
 
-- El informe final está en `output/pdf/Informe_Gestion_Inventarios_Alex_Aguilar_Lopez.pdf` (3 páginas, máximo permitido: 15).
+- El informe final, con evidencia de Workbench y del cambio de contraseña (sin mostrar la clave), está en `output/pdf/Informe_Gestion_Inventarios_Alex_Aguilar_Lopez.pdf`.
 - Crear el archivo final de diapositivas para la exposición de **10 minutos** usando `Presentacion.md` como guion.
 - Grabar el **video demo de máximo 5 minutos**. Debe enseñar el dashboard y una alerta real generada en la base de datos.
-- Confirmar la clave de `comparador_app`: en la captura, `CREATE USER IF NOT EXISTS` da el aviso 3163 porque la cuenta ya existía; ese comando no cambia su clave. Ejecute `database/rotate_app_user_password.example.sql` como administrador, sustituyendo el texto de ejemplo por una clave nueva, y ponga esa misma clave en `.env` como `DB_PASSWORD`.
+- La captura reciente confirma que se ejecutó `ALTER USER` correctamente. No incluya la captura original sin ocultar primero la contraseña.
 - Ejecutar la aplicación localmente después de configurar MySQL y revisar que el dashboard se conecte sin errores.
 - Grabar el video demo de máximo 5 minutos con la guía de `Demo_y_presentacion.md`.
 - Subir la presentación y el video al canal indicado por el docente; el repositorio por sí solo no los entrega automáticamente.

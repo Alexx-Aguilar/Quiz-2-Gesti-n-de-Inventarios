@@ -21,6 +21,8 @@ from reportlab.platypus import (
     Spacer,
     Table,
     TableStyle,
+    PageBreak,
+    Image as ReportImage,
 )
 from pypdf import PdfReader
 import fitz
@@ -29,6 +31,7 @@ import fitz
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "Informe.md"
 OUTPUT = ROOT / "output" / "pdf" / "Informe_Gestion_Inventarios_Alex_Aguilar_Lopez.pdf"
+EVIDENCE_IMAGE = ROOT / "output" / "evidencias" / "workbench_schema.png"
 PAGE_W, PAGE_H = letter
 FOREST = colors.HexColor("#153E32")
 GREEN = colors.HexColor("#2A7655")
@@ -144,6 +147,21 @@ def parse_report(text: str, styles, available_width: float):
         if not line or line == "---":
             flush_paragraph()
             flush_bullets()
+            i += 1
+            continue
+        if line == "[[PAGE_BREAK]]":
+            flush_paragraph()
+            flush_bullets()
+            story.append(PageBreak())
+            i += 1
+            continue
+        if line == "[[EVIDENCE_SCREENSHOT]]":
+            flush_paragraph()
+            flush_bullets()
+            if not EVIDENCE_IMAGE.exists():
+                raise FileNotFoundError(f"Falta la captura de evidencia: {EVIDENCE_IMAGE}")
+            story.append(ReportImage(str(EVIDENCE_IMAGE), width=available_width, height=available_width * 0.61, kind="proportional"))
+            story.append(Spacer(1, 5))
             i += 1
             continue
         if line.startswith("|"):

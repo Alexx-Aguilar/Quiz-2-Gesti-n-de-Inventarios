@@ -103,3 +103,15 @@ Fuentes JSON simuladas y documentadas, sin datos de tiendas reales. La actualiza
 ## Conclusiones
 
 El valor inmediato proviene de un catálogo único, control de precio contractual y conciliación documental antes de pagar. Hay que investigar la OC sospechosa y confirmar las especificaciones de insumos equivalentes antes de registrar pérdidas definitivas. Para operación real, conectar solo fuentes autorizadas y validar productos y precios.
+
+[[PAGE_BREAK]]
+
+## Evidencia de implementación
+
+**Base de datos:** `comparador_precios`. La captura de Workbench muestra las seis tablas del modelo: productos, proveedores, equivalencias, capturas de precios, alertas y errores de fuentes. Las consultas de verificación registran 4 productos, 8 equivalencias, 8 capturas y 0 alertas antes de ejecutar la prueba de variación.
+
+**Cambio de contraseña:** la captura adicional enviada por Alex registra `ALTER USER 'comparador_app'@'localhost' IDENTIFIED BY '[clave omitida]'` con resultado satisfactorio: indicador verde, 0 filas afectadas y 0.031 s. El aviso 3163 de la instrucción anterior `CREATE USER IF NOT EXISTS` solo indicaba que la cuenta ya existía; `ALTER USER` es la operación que actualiza la clave.
+
+[[EVIDENCE_SCREENSHOT]]
+
+Workbench con el esquema `comparador_precios` y resultados de las consultas de verificación.
