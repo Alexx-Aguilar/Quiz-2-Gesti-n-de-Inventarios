@@ -6,7 +6,8 @@
 - Esquema y datos iniciales para ejecutar en Workbench: `database/mysql_setup.sql`.
 - Script de cuenta de aplicación y ejemplo para cambiar una contraseña temporal.
 - Consulta de verificación de productos, equivalencias, capturas y alertas.
-- Dashboard, fuentes JSON simuladas, informe en Markdown, modelo de datos, README y guiones de video/exposición.
+- Dashboard, fuentes JSON simuladas, informe en Markdown y PDF, modelo de datos, README y guiones de video/exposición.
+- Informe individual a nombre de Alex Aguilar López. Complete el carné si el docente lo solicita.
 
 ## Capturas recomendadas
 
@@ -22,9 +23,10 @@ Usa `database/verification_queries.sql` para obtener resultados legibles. Ejecut
 
 ## Pendiente para entregar
 
-- Completar nombre del equipo e integrantes en `Informe.md`.
-- Exportar el informe final a **PDF de máximo 15 páginas**.
+- El informe final está en `output/pdf/Informe_Gestion_Inventarios_Alex_Aguilar_Lopez.pdf` (3 páginas, máximo permitido: 15).
 - Crear el archivo final de diapositivas para la exposición de **10 minutos** usando `Presentacion.md` como guion.
 - Grabar el **video demo de máximo 5 minutos**. Debe enseñar el dashboard y una alerta real generada en la base de datos.
+- Confirmar la clave de `comparador_app`: en la captura, `CREATE USER IF NOT EXISTS` da el aviso 3163 porque la cuenta ya existía; ese comando no cambia su clave. Ejecute `database/rotate_app_user_password.example.sql` como administrador, sustituyendo el texto de ejemplo por una clave nueva, y ponga esa misma clave en `.env` como `DB_PASSWORD`.
 - Ejecutar la aplicación localmente después de configurar MySQL y revisar que el dashboard se conecte sin errores.
-- Subir el PDF, la presentación y el video al canal indicado por el docente; el repositorio por sí solo no los entrega automáticamente.
+- Grabar el video demo de máximo 5 minutos con la guía de `Demo_y_presentacion.md`.
+- Subir la presentación y el video al canal indicado por el docente; el repositorio por sí solo no los entrega automáticamente.

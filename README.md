@@ -67,4 +67,4 @@ El botón de la página ejecuta una captura inmediata. Para programarlas, cree u
 
 ## Entrega y evidencias
 
-Consulte [`ENTREGA_Y_EVIDENCIAS.md`](ENTREGA_Y_EVIDENCIAS.md) para ver las capturas recomendadas, las consultas de verificación de Workbench y los entregables que aún debe preparar el equipo. Las consultas están en `database/verification_queries.sql`.
+Consulte [`ENTREGA_Y_EVIDENCIAS.md`](ENTREGA_Y_EVIDENCIAS.md) para ver las capturas recomendadas, las consultas de verificación de Workbench y los entregables que aún debe preparar. El informe PDF está en `output/pdf/Informe_Gestion_Inventarios_Alex_Aguilar_Lopez.pdf`; las consultas están en `database/verification_queries.sql`.

@@ -6,7 +6,7 @@ Guion de diapositivas para una exposición de 10 minutos. Pasar a PowerPoint o G
 
 Gestión de inventarios · Quiz 2<br>
 Constructora Del Valle S.A. · Opción 1<br>
-Equipo e integrantes: completar
+Presenta: Alex Aguilar López
 
 ## 2. Problema · 1 min
 

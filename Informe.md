@@ -2,7 +2,8 @@
 
 **Quiz 2 · Trabajo práctico · Constructora Del Valle S.A.**<br>
 **Opción seleccionada:** 1, Comparador de precios y catálogo de proveedores<br>
-**Equipo:** ______________________________  **Integrantes:** ______________________________<br>
+**Equipo:** Trabajo individual<br>
+**Integrante:** Alex Aguilar López  **Carné:** ______________________________<br>
 **Fecha:** 6 de noviembre de 2026
 
 ## Resumen ejecutivo
